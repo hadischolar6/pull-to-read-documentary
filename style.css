@@ -1,0 +1,128 @@
+/* Wireframe-grey prototype with one orange accent, like the owner's Example.png.
+   Font: DejaVu Sans / Serif (free licence, font/LICENSE_DEJAVU.txt), bundled so screens look the same on every device. */
+@font-face { font-family:"DejaVu Sans"; src:url("font/DejaVuSans.ttf") format("truetype"); font-weight:400; font-display:swap; }
+@font-face { font-family:"DejaVu Sans"; src:url("font/DejaVuSans-Bold.ttf") format("truetype"); font-weight:600 800; font-display:swap; }
+@font-face { font-family:"DejaVu Serif"; src:url("font/DejaVuSerif-Bold.ttf") format("truetype"); font-weight:700; font-display:swap; }
+:root { --ink:#1f2328; --mute:#6b7178; --line:#d9dcdf; --bg:#f3f4f5; --card:#fff; --acc:#e8742b; --filmH:236px; --miniH:64px; }
+* { box-sizing:border-box; }
+html,body { margin:0; background:#e6e8ea; color:var(--ink); font:14px/1.45 "DejaVu Sans",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; }
+button { font:inherit; color:inherit; cursor:pointer; }
+#app { max-width:420px; margin:0 auto; min-height:100vh; background:var(--bg); position:relative; padding-bottom:72px; }
+@media (min-width:600px){ body{padding:24px 0} #app{border-radius:28px; box-shadow:0 10px 40px rgba(0,0,0,.18); overflow:clip; min-height:860px} }
+
+.top { display:flex; gap:8px; padding:10px 12px; background:#fff; border-bottom:1px solid var(--line); position:relative; z-index:6; }
+.city { border:1px solid var(--line); background:#fff; border-radius:10px; padding:6px 10px; font-weight:600; white-space:nowrap; }
+.search { flex:1; display:flex; align-items:center; gap:6px; border:1px solid var(--line); border-radius:10px; padding:0 10px; background:#fafafa; }
+.search input { border:0; outline:0; background:transparent; width:100%; font:inherit; padding:6px 0; }
+.city-list { list-style:none; margin:0; padding:6px; position:absolute; top:52px; left:12px; z-index:20; background:#fff; border:1px solid var(--line); border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,.12); }
+.city-list li { padding:8px 14px; border-radius:8px; }
+.city-list li[aria-selected="true"] { background:#fdeee4; color:#a84d14; font-weight:600; }
+
+/* Film: sticky. Its height follows the scroll position (set by app.js through --p, 0 = full, 1 = mini strip). */
+.film { position:sticky; top:0; z-index:5; background:#111; color:#fff; --p:0; }
+.scene { position:relative; height:calc(var(--filmH) - (var(--filmH) - var(--miniH)) * var(--p)); overflow:hidden; transition:height .05s linear; }
+.scene-art { position:absolute; inset:-10%; background:var(--era,#8a7f72); }
+.scene-art::before { content:""; position:absolute; inset:0; background:
+  radial-gradient(120px 80px at 70% 30%, rgba(255,255,255,.28), transparent 70%),
+  linear-gradient(transparent 55%, rgba(0,0,0,.35) 56%, rgba(0,0,0,.35) 62%, transparent 63%),
+  repeating-linear-gradient(90deg, rgba(0,0,0,.18) 0 18px, transparent 18px 46px);
+  animation:kenburns 15s linear infinite alternate; }
+.watching .scene-art::before { animation-play-state:running; } .paused .scene-art::before { animation-play-state:paused; }
+@keyframes kenburns { from{transform:scale(1) translateX(0)} to{transform:scale(1.15) translateX(-4%)} }
+.scene-era { position:absolute; left:14px; top:12px; font:700 26px/1 "DejaVu Serif",Georgia,serif; text-shadow:0 2px 8px rgba(0,0,0,.4); opacity:calc(1 - var(--p)); }
+.scene-tag { position:absolute; right:10px; top:12px; font-size:10px; letter-spacing:.08em; background:rgba(0,0,0,.45); padding:3px 6px; border-radius:6px; opacity:calc(1 - var(--p)); }
+.caption { position:absolute; left:10px; right:10px; bottom:8px; margin:0; font-size:14px; line-height:1.35; background:rgba(0,0,0,.55); padding:6px 8px; border-radius:8px; }
+.paused-badge { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); background:rgba(0,0,0,.7); padding:6px 12px; border-radius:20px; font-size:13px; display:none; }
+.paused .paused-badge { display:block; }
+.reading-on .caption, .reading-on .paused-badge { display:none; }
+.controls { display:flex; align-items:center; gap:10px; padding:6px 10px 8px; background:#111; }
+.play { width:34px; height:34px; border-radius:50%; border:0; background:#fff; color:#111; font-size:12px; flex:none; }
+.time { font-size:12px; color:#cfd3d6; font-variant-numeric:tabular-nums; flex:none; }
+.scrub { position:relative; flex:1; height:14px; }
+.scrub-eras { position:absolute; inset:5px 0; display:flex; gap:2px; }
+.scrub-eras i { flex:1; background:#4a4f55; border-radius:2px; }
+.scrub-fill { position:absolute; left:0; top:5px; height:4px; background:var(--acc); border-radius:2px; width:0; }
+.scrub-stars { position:absolute; inset:0; pointer-events:none; }
+.scrub-stars b { position:absolute; top:-3px; font-size:11px; color:#ffd166; transform:translateX(-50%); }
+.mini-label { display:none; font-size:12px; text-align:center; padding:2px 0 6px; color:#ffd8bf; }
+.reading-on .mini-label { display:block; }
+
+.eras { display:flex; gap:6px; overflow-x:auto; padding:10px 12px; background:#fff; border-bottom:1px solid var(--line); scrollbar-width:none; }
+.eras button { flex:none; border:1px solid var(--line); background:#fff; border-radius:16px; padding:5px 12px; font-size:13px; }
+.eras button.on { background:var(--acc); color:#fff; border-color:var(--acc); font-weight:600; }
+
+/* Peek strip: visible while watching, sits under the film; tap = same as pulling up. */
+.peek { display:flex; align-items:center; gap:10px; width:100%; border:0; border-bottom:1px solid var(--line); background:#fff7f1; padding:10px 12px; text-align:left; position:relative; }
+.peek-handle { position:absolute; top:4px; left:50%; width:36px; height:4px; margin-left:-18px; border-radius:2px; background:#e3c3ad; }
+.peek-text { flex:1; font-size:14px; }
+.peek-text b { color:#a84d14; }
+.peek-star { font-size:22px; line-height:1; padding:4px 6px; color:#b0b4b8; }
+.peek-star.on { color:var(--acc); }
+.peek.flash { animation:flash .6s ease 2; }
+@keyframes flash { 50%{background:#ffe2cc} }
+
+.reading { padding:12px; min-height:120vh; }
+.card { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:14px; box-shadow:0 2px 6px rgba(0,0,0,.04); }
+.card .kind { display:inline-block; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:#a84d14; background:#fdeee4; padding:2px 8px; border-radius:10px; }
+.card .at { float:right; font-size:12px; color:var(--mute); }
+.card h2 { margin:8px 0 4px; font:700 21px/1.2 Georgia,serif; }
+.card .era-line { font-size:12px; color:var(--mute); margin:0 0 8px; }
+.card .quote { border-left:3px solid var(--acc); padding:4px 10px; margin:8px 0; color:#3b4046; font-style:italic; font-size:14px; }
+.chips { display:flex; flex-wrap:wrap; gap:6px; margin:6px 0 10px; }
+.chips span { font-size:12px; border:1px solid var(--line); border-radius:12px; padding:3px 9px; background:#fafafa; }
+details { border-top:1px solid var(--line); padding:8px 0; }
+details summary { font-weight:600; cursor:pointer; }
+details ul { margin:6px 0 0; padding-left:18px; color:#3b4046; }
+.card .actions { display:flex; gap:8px; margin-top:10px; }
+.card .actions button { flex:1; border:1px solid var(--line); background:#fff; border-radius:10px; padding:9px; font-weight:600; }
+.card .actions button.primary { background:var(--acc); color:#fff; border-color:var(--acc); }
+.more h3 { font-size:13px; color:var(--mute); text-transform:uppercase; letter-spacing:.06em; margin:18px 4px 6px; }
+.more ul { list-style:none; margin:0; padding:0; }
+.more li button { width:100%; text-align:left; border:1px solid var(--line); background:#fff; border-radius:12px; padding:10px 12px; margin-bottom:6px; }
+.more li small { color:var(--mute); display:block; }
+.hint-end { text-align:center; color:var(--mute); font-size:13px; padding:12px 24px; }
+
+.toast { position:fixed; left:50%; bottom:84px; transform:translateX(-50%) translateY(20px); opacity:0; background:#1f2328; color:#fff; padding:9px 14px; border-radius:12px; font-size:13px; max-width:360px; z-index:30; transition:all .25s; pointer-events:none; }
+.toast.on { opacity:1; transform:translateX(-50%) translateY(0); }
+
+.tabs { position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:420px; display:flex; background:#fff; border-top:1px solid var(--line); z-index:10; }
+.tab { flex:1; border:0; background:none; padding:8px 0 10px; font-size:18px; color:var(--mute); display:flex; flex-direction:column; align-items:center; }
+.tab span { font-size:11px; }
+.tab.on { color:var(--acc); }
+.tab b { background:var(--acc); color:#fff; border-radius:8px; padding:0 5px; font-size:10px; }
+
+.story { position:fixed; inset:0; max-width:420px; margin:0 auto; background:#141414; color:#fff; z-index:40; display:flex; flex-direction:column; padding:12px 14px 18px; }
+.story[hidden] { display:none; }
+.story-bars { display:flex; gap:4px; }
+.story-bars i { flex:1; height:3px; border-radius:2px; background:#555; }
+.story-bars i.on { background:#fff; }
+.story-head { display:flex; justify-content:space-between; align-items:center; margin:12px 0; font-size:13px; color:#ffd8bf; }
+.story-head button { border:0; background:none; color:#fff; font-size:20px; }
+.story-body { flex:1; display:flex; flex-direction:column; justify-content:center; }
+.story-body .kind { color:#ffd8bf; font-size:12px; letter-spacing:.08em; text-transform:uppercase; }
+.story-body h2 { font:700 28px/1.15 Georgia,serif; margin:6px 0 12px; }
+.story-body p { font-size:17px; color:#e8e8e8; }
+.story-body .chips span { background:#262626; border-color:#3a3a3a; color:#ddd; }
+.story-foot { display:flex; gap:10px; }
+.story-foot button { flex:1; border:0; border-radius:12px; padding:12px; font-weight:700; background:var(--acc); color:#fff; }
+.story-foot button.ghost { background:#2a2a2a; }
+.story-tip { font-size:12px; color:#9a9a9a; text-align:center; margin:10px 0 0; }
+
+/* r2 fixes (vision check 6 Nov 21:42): watch mode shows a teaser instead of an empty card; peek hidden while reading;
+   toast moves under the film strip while reading; page always tall enough for the film to reach the mini strip. */
+.teaser { margin:12px; padding:14px; border:1px dashed #d8b9a3; border-radius:16px; color:#6b4a35; background:#fffaf6; font-size:14px; }
+.teaser b { color:#a84d14; }
+#app:not(.reading-on) #card, #app:not(.reading-on) .more, #app:not(.reading-on) .hint-end { display:none; }
+.reading-on .teaser { display:none; }
+.reading-on .peek { visibility:hidden; }
+.reading { min-height:calc(100vh + 260px); }
+.reading-on .toast { top:150px; bottom:auto; }
+
+/* r2b: the shrinking sticky film made Chrome scroll-anchoring pull the page back (p stuck at 0.76). */
+html, body { overflow-anchor:none; }
+
+/* r2d: 360 px — "Resume film (0:15)" wrapped to two lines. */
+.card .actions button { white-space:nowrap; font-size:14px; padding:9px 6px; }
+
+/* r4: disabled Back in the Story break must look inactive */
+.story-foot button:disabled { opacity:.35; cursor:default; }
