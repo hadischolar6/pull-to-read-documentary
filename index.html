@@ -16,6 +16,7 @@
     <label class="search"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Search events, people, places" aria-label="Search"></label>
   </header>
   <ul class="city-list" id="cityList" role="listbox" hidden></ul>
+  <ul class="search-results" id="searchResults" aria-label="Search results" hidden></ul>
 
   <section class="film" id="film" aria-label="Documentary player">
     <div class="scene" id="scene">
@@ -23,7 +24,7 @@
       <div class="scene-era" id="sceneEra">Ancient</div>
       <div class="scene-tag">SAMPLE FILM · simulated</div>
       <p class="caption" id="caption"></p>
-      <div class="paused-badge" id="pausedBadge">❚❚ Paused while you read</div>
+      <div class="paused-badge" id="pausedBadge">❚❚ Paused · pull up to read about this moment</div>
     </div>
     <div class="controls">
       <button id="playBtn" class="play" aria-label="Pause">❚❚</button>
@@ -34,7 +35,7 @@
         <div class="scrub-stars" id="scrubStars"></div>
       </div>
     </div>
-    <div class="mini-label" id="miniLabel">▼ Scroll back up to keep watching</div>
+    <div class="mini-label" id="miniLabel">❚❚ Paused · push down to keep watching ▼</div>
   </section>
 
   <nav class="eras" id="eraRail" aria-label="Eras"></nav>
@@ -46,7 +47,7 @@
   </button>
 
   <main class="reading" id="reading">
-    <p class="teaser" id="teaser"><b>How it works:</b> keep watching, or pull this page up whenever something interests you. The film pauses and a card about that exact moment opens. Scroll back to the top and the film carries on. Tap ☆ to save a moment for the Story break at the end of the chapter.</p>
+    <p class="teaser" id="teaser"><b>How it works:</b> keep watching, or pull this page up whenever something interests you. The film pauses and a card about that exact moment opens. Push the page back down and the film carries on. Tap ☆ to save a moment for the Story break at the end of the chapter.</p>
     <article class="card" id="card"></article>
     <section class="more">
       <h3>Earlier in this chapter</h3>
@@ -54,7 +55,7 @@
       <h3>Coming up in the film</h3>
       <ul id="next"></ul>
     </section>
-    <p class="hint-end">Scroll back to the top and the film continues from the start of the sentence you left.</p>
+    <p class="hint-end">Push the page back down and the film continues from the start of the sentence you left.</p>
   </main>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>

@@ -126,3 +126,31 @@ html, body { overflow-anchor:none; }
 
 /* r4: disabled Back in the Story break must look inactive */
 .story-foot button:disabled { opacity:.35; cursor:default; }
+
+/* r5 (fresh-context review 7 Nov) */
+/* 1. card buttons ran out of the card at 360-430 px (Save cut off) -> 2-column grid, Resume on its own row */
+.card .actions { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.card .actions button { min-width:0; overflow:hidden; text-overflow:ellipsis; }
+.card .actions button.primary { grid-column:1 / -1; }
+.card .actions button:last-child:nth-child(2) { grid-column:1 / -1; }
+#app { overflow-x:clip; }
+/* 3. search results list (titles + m:ss in the film) */
+.search-results { list-style:none; margin:0; padding:6px; position:absolute; top:52px; left:12px; right:12px; z-index:21; background:#fff; border:1px solid var(--line); border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,.14); max-height:60vh; overflow:auto; }
+.search-results[hidden] { display:none; }
+.search-results button { width:100%; text-align:left; border:0; background:none; padding:8px 10px; border-radius:8px; display:block; }
+.search-results button:hover, .search-results button:focus { background:#fdeee4; }
+.search-results b { display:block; font-size:14px; }
+.search-results small { color:var(--mute); font-size:12px; }
+.search-results .at { float:right; font-size:12px; font-weight:600; color:#a84d14; background:#fdeee4; border-radius:10px; padding:1px 8px; margin-left:8px; }
+.search-results .none { padding:8px 10px; color:var(--mute); }
+/* 2. cities without sample content look unavailable */
+.city-list li.nosample { color:#9aa0a6; }
+.city-list li small { font-size:11px; }
+/* 6. era name + SAMPLE FILM tag were faint leftovers on the mini strip */
+.reading-on .scene-era, .reading-on .scene-tag { display:none; }
+/* 10. Save star tap target was 32x30 px -> at least 44x44 */
+.peek-star { min-width:44px; min-height:44px; display:inline-flex; align-items:center; justify-content:center; padding:8px 10px; }
+/* 13. pushing back down at the top must not trigger Android pull-to-refresh */
+html, body { overscroll-behavior-y:contain; }
+/* 5. while reading, toasts (e.g. "Saved") covered the card title under the mini strip -> show them at the bottom again */
+.reading-on .toast { top:auto; bottom:84px; }

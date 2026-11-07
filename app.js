@@ -28,6 +28,8 @@
   D.cities.forEach((c) => {
     const li = document.createElement("li"); li.textContent = c; li.setAttribute("role", "option");
     li.setAttribute("aria-selected", c === D.city ? "true" : "false");
+    // r5: be honest in the UI: only Nashik has sample content in this prototype
+    if (c !== D.city) { li.classList.add("nosample"); const sm = document.createElement("small"); sm.textContent = " · no sample yet"; li.appendChild(sm); }
     li.onclick = () => { $("cityList").hidden = true; if (c !== D.city) toast(c + ": sample content exists only for Nashik in this prototype."); };
     $("cityList").appendChild(li);
   });
@@ -78,7 +80,9 @@
     S.mode = "read"; S.resumeCue = ci == null ? cueAt(S.t) : ci;
     setPlaying(false); app.classList.add("reading-on");
     renderCard(S.resumeCue);
-    toast("Paused at " + fmt(S.t) + ". Scroll back up to keep watching.");
+    // r5: no toast here (it covered the card title); the mini strip itself says where the film paused
+    clearTimeout(toastTimer); $("toast").classList.remove("on");
+    $("miniLabel").textContent = "❚❚ Paused at " + fmt(S.t) + " · push down to keep watching ▼";
     alignCard();
   }
   // r2c: after pulling up, line the card's top up just under the mini film strip (title was hidden behind the sticky film).
@@ -177,14 +181,36 @@
     else if (tab === "map") toast("Map: this chapter's places on a city map (not built in this prototype).");
     else backToFilm(true);
   });
+  // r5: search covers kind, title, summary, narration line, era, people, places, evidence and sources; results list with m:ss
+  const hay = (c) => { const m = D.moments[c.moment], e = eraOf(c.era); return [m.kind, m.title, m.summary, c.text, e.name, e.range].concat(m.people, m.places, m.evidence, m.sources).join(" ").toLowerCase(); };
+  const findCues = (q) => D.cues.map((c, k) => [c, k]).filter(([c]) => hay(c).includes(q)).map(([, k]) => k);
+  function openFromSearch(k) { $("searchResults").hidden = true; enterRead(cueAt(S.t)); renderCard(k); alignCard(); $("search").blur(); }
+  function showResults(q) {
+    const ul = $("searchResults"); ul.innerHTML = "";
+    if (q.length < 2) { ul.hidden = true; return []; }
+    const ks = findCues(q);
+    if (!ks.length) { const li = document.createElement("li"); li.className = "none"; li.textContent = "No moment found for “" + q + "”."; ul.appendChild(li); }
+    ks.forEach((k) => {
+      const c = D.cues[k], m = D.moments[c.moment]; const li = document.createElement("li"); const b = document.createElement("button");
+      const at = document.createElement("span"); at.className = "at"; at.textContent = fmt(c.t);
+      const tt = document.createElement("b"); tt.textContent = m.title;
+      const sm = document.createElement("small"); sm.textContent = m.kind + " · " + eraOf(c.era).name;
+      b.append(at, tt, sm); b.onclick = () => openFromSearch(k); li.appendChild(b); ul.appendChild(li);
+    });
+    ul.hidden = false; return ks;
+  }
+  $("search").oninput = (ev) => showResults(ev.target.value.trim().toLowerCase());
+  document.addEventListener("click", (ev) => { if (!ev.target.closest("#searchResults, .search")) $("searchResults").hidden = true; });
   $("search").onkeydown = (ev) => {
+    if (ev.key === "Escape") { $("searchResults").hidden = true; ev.target.blur(); return; }
     if (ev.key !== "Enter") return;
     const q = ev.target.value.trim().toLowerCase(); if (!q) return;
-    const k = D.cues.findIndex((c) => { const m = D.moments[c.moment]; return (m.title + " " + m.summary + " " + m.people.join(" ")).toLowerCase().includes(q); });
+    const k = findCues(q)[0] ?? -1; if (k < 0) showResults(q);
     if (k < 0) { toast("No moment found for “" + ev.target.value + "”."); return; }
-    enterRead(cueAt(S.t)); renderCard(k); alignCard(); ev.target.blur();
+    openFromSearch(k);
   };
-  document.addEventListener("keydown", (ev) => { if (ev.key === " " && ev.target === document.body) { ev.preventDefault(); $("playBtn").click(); } });
+  // r5: Space = play/pause unless focus is on something that uses Space itself
+  document.addEventListener("keydown", (ev) => { if (ev.key === " " && !(ev.target.closest && ev.target.closest("input, textarea, button, summary, [role=button], [role=slider]"))) { ev.preventDefault(); $("playBtn").click(); } });
 
   // ---------- clock ----------
   let last = performance.now();
@@ -207,5 +233,5 @@
   requestAnimationFrame(loop);
 
   // Test/demo hooks (used by the screenshot script).
-  window.proto = { S, seek, enterRead, backToFilm, toggleSave, openStory, setPlaying };
+  window.proto = { S, seek, enterRead, backToFilm, toggleSave, openStory, setPlaying, findCues };
 })();
