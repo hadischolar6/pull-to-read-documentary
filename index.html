@@ -6,6 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Pull to read, push to watch — interactive documentary prototype (sample)</title>
 <link rel="stylesheet" href="style.css">
+<!-- r8 visual pass: archive/print look, OFL fonts, drawn film stills -->
 </head>
 <body>
 <div id="app" class="watching">
@@ -13,7 +14,7 @@
     <button class="city" id="cityBtn" aria-haspopup="listbox" aria-label="Choose city">
       <span id="cityName">Nashik</span> <span aria-hidden="true">▾</span>
     </button>
-    <label class="search"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Search events, people, places" aria-label="Search"></label>
+    <label class="search"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 15 15"><circle cx="6.2" cy="6.2" r="4.7" fill="none" stroke="#55504a" stroke-width="1.5"/><line x1="9.7" y1="9.7" x2="13.8" y2="13.8" stroke="#55504a" stroke-width="1.5"/></svg><input id="search" type="search" placeholder="Search events, people, places" aria-label="Search"></label>
   </header>
   <ul class="city-list" id="cityList" role="listbox" hidden></ul>
   <ul class="search-results" id="searchResults" aria-label="Search results" hidden></ul>
@@ -42,17 +43,17 @@
 
   <button class="peek" id="peek" aria-label="Read about this moment">
     <span class="peek-handle" aria-hidden="true"></span>
-    <span class="peek-text"><b>▲ Pull up to read</b> <span id="peekTitle"></span></span>
+    <span class="peek-text"><b>On screen now · pull up to read</b><span id="peekTitle"></span></span>
     <span class="peek-star" id="peekStar" role="button" tabindex="0" aria-label="Save for the Story break">☆</span>
   </button>
 
   <main class="reading" id="reading">
-    <p class="teaser" id="teaser"><b>How it works:</b> keep watching, or pull this page up whenever something interests you. The film pauses and a card about that exact moment opens. Push the page back down and the film carries on. Tap ☆ to save a moment for the Story break at the end of the chapter.</p>
+    <section class="teaser" id="teaser" aria-label="Chapter transcript"><h3 class="label" id="trHead">This chapter</h3><ol id="transcript"></ol><p class="foot">Pull the page up on any line to read about it; the film waits. ☆ keeps a line for the end of the chapter.</p></section>
     <article class="card" id="card"></article>
     <section class="more">
-      <h3>Earlier in this chapter</h3>
+      <h3 class="label">Earlier in this chapter</h3>
       <ul id="earlier"></ul>
-      <h3>Coming up in the film</h3>
+      <h3 class="label">Coming up in the film</h3>
       <ul id="next"></ul>
     </section>
     <p class="hint-end">Push the page back down and the film continues from the start of the sentence you left.</p>
@@ -72,10 +73,10 @@
   </div>
 
   <nav class="tabs" aria-label="Main">
-    <button class="tab on" data-tab="timeline">◷<span>Timeline</span></button>
-    <button class="tab" data-tab="map">⌖<span>Map</span></button>
-    <button class="tab" data-tab="stories">❏<span>Stories</span></button>
-    <button class="tab" data-tab="saved">☆<span>Saved <b id="savedCount">0</b></span></button>
+    <button class="tab on" data-tab="timeline"><span>Timeline</span></button>
+    <button class="tab" data-tab="map"><span>Map</span></button>
+    <button class="tab" data-tab="stories"><span>Stories</span></button>
+    <button class="tab" data-tab="saved"><span>Saved <b id="savedCount">0</b></span></button>
   </nav>
 </div>
 <script src="data.js"></script>

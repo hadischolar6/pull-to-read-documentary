@@ -51,6 +51,9 @@
       $("caption").textContent = cue.text;
       $("sceneEra").textContent = era.name;
       $("sceneArt").style.setProperty("--era", era.color);
+      // r8: drawn still for the era (sample illustration) instead of a striped placeholder
+      $("sceneArt").style.backgroundImage = "url(scene/" + era.id + ".svg)";
+      renderTranscript(ci);
       document.querySelectorAll("#eraRail button").forEach((b) => b.classList.toggle("on", b.dataset.era === era.id));
       // r7: keep the active era chip in view on narrow phones (rail scrolls sideways only, the page never moves)
       followRail(true);
@@ -68,6 +71,19 @@
   }
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => followRail(false));
   window.addEventListener("resize", () => followRail(false));
+  // r8: watch mode shows the chapter transcript under the film; the line on screen is highlighted
+  function renderTranscript(ci) {
+    const cue = D.cues[ci], era = eraOf(cue.era), ol = $("transcript"); if (!ol) return;
+    $("trHead").textContent = "Chapter " + (D.eras.indexOf(era) + 1) + " of " + D.eras.length + " — " + era.name;
+    ol.innerHTML = "";
+    D.cues.forEach((c, k) => {
+      if (c.era !== cue.era && k !== ci + 1) return;
+      const li = document.createElement("li"); li.className = k < ci ? "past" : k === ci ? "now" : "next";
+      const m = D.moments[c.moment];
+      li.innerHTML = "<time>" + fmt(c.t) + "</time><span>" + c.text + "</span><em>" + m.kind + " · " + m.title + (S.saved.has(c.moment) ? " ★" : "") + "</em>";
+      ol.appendChild(li);
+    });
+  }
   function renderStars() {
     $("scrubStars").innerHTML = "";
     S.saved.forEach((m) => { const c = D.cues[cueOfMoment(m)]; const b = document.createElement("b"); b.textContent = "★"; b.style.left = (c.t / D.duration) * 100 + "%"; $("scrubStars").appendChild(b); });
@@ -176,7 +192,7 @@
   function renderStory() {
     const st = S.story, m = D.moments[st.list[st.i]], c = D.cues[cueOfMoment(st.list[st.i])];
     $("storyBars").innerHTML = st.list.map((_, k) => '<i class="' + (k <= st.i ? "on" : "") + '"></i>').join("");
-    $("storyBody").innerHTML = '<span class="kind">' + m.kind + " · from " + fmt(c.t) + "</span><h2>" + m.title + "</h2><p>" + m.summary + "</p><div class=chips>" + m.evidence.map((e) => "<span>" + e + "</span>").join("") + "</div>";
+    $("storyBody").innerHTML = '<div class="still" style="background-image:url(scene/' + c.era + '.svg)"></div><span class="kind">' + m.kind + " · from " + fmt(c.t) + "</span><h2>" + m.title + "</h2><p>" + m.summary + "</p><div class=chips>" + m.evidence.map((e) => "<span>" + e + "</span>").join("") + "</div>";
     $("storyPrev").disabled = st.i === 0;
     $("storyNext").textContent = st.i === st.list.length - 1 ? "Continue film ▶" : "Next ›";
   }
