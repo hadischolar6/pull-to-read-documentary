@@ -159,7 +159,10 @@
   // ---------- Story break (end of each chapter, only if something was starred) ----------
   function openStory(era, list, label) {
     S.story = { era, list, i: 0 }; setPlaying(false);
-    $("story").hidden = false; $("storyChapter").textContent = label; renderStory();
+    $("story").hidden = false; $("storyChapter").textContent = label;
+    $("storyTip").textContent = era ? "Story break · only the moments you starred in this chapter. ✕ skips it."
+      : /^Saved/.test(label) ? "All your saved moments, from every chapter. ✕ closes." : "Every moment of this chapter. ✕ closes.";
+    renderStory();
   }
   function renderStory() {
     const st = S.story, m = D.moments[st.list[st.i]], c = D.cues[cueOfMoment(st.list[st.i])];
