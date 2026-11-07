@@ -213,6 +213,25 @@
   const hay = (c) => { const m = D.moments[c.moment], e = eraOf(c.era); return [m.kind, m.title, m.summary, c.text, e.name, e.range].concat(m.people, m.places, m.evidence, m.sources).join(" ").toLowerCase(); };
   const findCues = (q) => D.cues.map((c, k) => [c, k]).filter(([c]) => hay(c).includes(q)).map(([, k]) => k);
   function openFromSearch(k) { $("searchResults").hidden = true; enterRead(cueAt(S.t)); renderCard(k); alignCard(); $("search").blur(); }
+  // r8c: each result says where the query matched (person, place, evidence...), with the matched words marked
+  function marked(text, q) {
+    const f = document.createDocumentFragment(), i = text.toLowerCase().indexOf(q);
+    if (i < 0) { f.append(text); return f; }
+    const mk = document.createElement("mark"); mk.textContent = text.slice(i, i + q.length);
+    f.append(text.slice(0, i), mk, text.slice(i + q.length)); return f;
+  }
+  function whyMatch(c, m, q) {
+    const e = eraOf(c.era);
+    const fields = [["Person", m.people], ["Place", m.places], ["Evidence", m.evidence], ["Source", m.sources], ["Title", [m.title]],
+      ["Narration", [c.text]], ["Summary", [m.summary]], ["Era", [e.name + " · " + e.range]]];
+    for (const [label, arr] of fields) {
+      const hit = (arr || []).find((x) => x.toLowerCase().includes(q)); if (!hit) continue;
+      let t = hit; const i = t.toLowerCase().indexOf(q);
+      if (t.length > 64) { const a = Math.max(0, i - 24), z = Math.min(t.length, i + q.length + 30); t = (a ? "…" : "") + t.slice(a, z) + (z < t.length ? "…" : ""); }
+      const sp = document.createElement("span"); sp.className = "why"; sp.append(label + ": ", marked(t, q)); return sp;
+    }
+    return null;
+  }
   function showResults(q) {
     const ul = $("searchResults"); ul.innerHTML = "";
     if (q.length < 2) { ul.hidden = true; return []; }
@@ -223,7 +242,8 @@
       const at = document.createElement("span"); at.className = "at"; at.textContent = fmt(c.t);
       const tt = document.createElement("b"); tt.textContent = m.title;
       const sm = document.createElement("small"); sm.textContent = m.kind + " · " + eraOf(c.era).name;
-      b.append(at, tt, sm); b.onclick = () => openFromSearch(k); li.appendChild(b); ul.appendChild(li);
+      b.append(at, tt, sm); const w = whyMatch(c, m, q); if (w) b.appendChild(w);
+      b.onclick = () => openFromSearch(k); li.appendChild(b); ul.appendChild(li);
     });
     ul.hidden = false; return ks;
   }

@@ -45,6 +45,8 @@ button { font:inherit; color:inherit; cursor:pointer; }
 .search-results b { display:block; font:600 16px/1.25 var(--serif); }
 .search-results small { color:var(--mute); font:11px var(--mono); }
 .search-results .at { float:right; font:500 12px var(--mono); color:var(--acc); margin-left:10px; }
+.search-results .why { display:block; margin-top:3px; font:12.5px/1.35 var(--sans); color:var(--ink2); }
+.search-results mark { background:var(--acc-soft); color:var(--ink); padding:0 1px; }
 .search-results .none { padding:10px 14px; color:var(--mute); }
 
 /* film: sticky; its height follows the scroll position (app.js sets --p: 0 = full, 1 = mini strip) */
