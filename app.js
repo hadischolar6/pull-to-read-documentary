@@ -52,6 +52,8 @@
       $("sceneEra").textContent = era.name;
       $("sceneArt").style.setProperty("--era", era.color);
       document.querySelectorAll("#eraRail button").forEach((b) => b.classList.toggle("on", b.dataset.era === era.id));
+      // r7: keep the active era chip in view on narrow phones (rail scrolls sideways only, the page never moves)
+      followRail(true);
       const m = D.moments[cue.moment];
       $("peekTitle").textContent = m.kind + ": " + m.title;
       $("peekStar").classList.toggle("on", S.saved.has(cue.moment));
@@ -59,6 +61,13 @@
       if (S.mode === "watch") { $("peek").classList.remove("flash"); void $("peek").offsetWidth; $("peek").classList.add("flash"); }
     }
   }
+  // r7: centre the active era chip in the rail (sideways scroll of the rail only); re-run once the web font has changed chip widths
+  function followRail(smooth) {
+    const rail = $("eraRail"), on = rail.querySelector("button.on"); if (!on) return;
+    rail.scrollTo({ left: Math.max(0, on.offsetLeft - rail.offsetLeft - (rail.clientWidth - on.offsetWidth) / 2), behavior: smooth ? "smooth" : "auto" });
+  }
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => followRail(false));
+  window.addEventListener("resize", () => followRail(false));
   function renderStars() {
     $("scrubStars").innerHTML = "";
     S.saved.forEach((m) => { const c = D.cues[cueOfMoment(m)]; const b = document.createElement("b"); b.textContent = "★"; b.style.left = (c.t / D.duration) * 100 + "%"; $("scrubStars").appendChild(b); });
